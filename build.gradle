@@ -12,6 +12,7 @@ java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 dependencies {
@@ -20,9 +21,13 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-data-jpa"
 	implementation "org.springframework.boot:spring-boot-starter-logging"
 	implementation "org.springframework.boot:spring-boot-starter-cache"
-	implementation "org.postgresql:postgresql"
+	runtimeOnly "org.postgresql:postgresql"
 	implementation "org.springdoc:springdoc-openapi-ui:1.4.8"
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude group: "org.junit.vintage", module: "junit-vintage-engine"
+	}
+	testImplementation "com.h2database:h2"
+	testImplementation "junit:junit:4.13"
 }
 
 test {
