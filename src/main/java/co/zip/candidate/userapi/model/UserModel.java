@@ -1,13 +1,21 @@
 package co.zip.candidate.userapi.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.id.uuid.StandardRandomStrategy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.util.Date;
 
+@XmlRootElement(name = "UserModel")
+@XmlAccessorType(XmlAccessType.FIELD)
 @Component
 @Entity
 public class UserModel {
@@ -50,5 +58,6 @@ public class UserModel {
         this.email = email;
         this.monthlySalary = monthlySalary;
         this.monthlyExpense = monthlyExpense;
+        this.created = new Date();
     }
 }

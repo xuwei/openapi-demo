@@ -30,3 +30,6 @@ hs_err_pid*
 build
 
 .DS_Store
+
+# don't ignore wrapper folder
+!gradle/wrapper/*
