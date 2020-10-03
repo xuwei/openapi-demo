@@ -4,6 +4,7 @@ import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,18 +18,17 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
+@RequestMapping("/api/user")
+@Tag(name = "UserController", description = "User API")
 public class UserController {
 
     @Autowired
     private IUserService userService;
 
-    @Operation(
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Success")
-            }
-    )
     @Async
-    @GetMapping("/user/list")
+    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseBody
+    @GetMapping("/list")
     public CompletableFuture<ResponseEntity<List<UserModel>>> listUsers() {
         List users = userService.listUsers();
         ResponseEntity response = new ResponseEntity<>(users, HttpStatus.OK);
@@ -36,15 +36,19 @@ public class UserController {
     }
 
     @Async
-    @GetMapping("/user")
-    public CompletableFuture<ResponseEntity<UserModel>> getUser(@RequestParam(required = true) Long userId) {
+    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseBody
+    @GetMapping("/{userId}")
+    public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable Long userId) {
         UserModel user = userService.getUser(userId);
         ResponseEntity response = new ResponseEntity<>(user, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
     }
 
     @Async
-    @PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    @ResponseBody
+    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
     public CompletableFuture<ResponseEntity<UserModel>> createUser(@Valid @RequestBody UserModel user) throws Exception {
         UserModel savedUser = userService.createUser(user);
         ResponseEntity response = new ResponseEntity<>(savedUser, HttpStatus.OK);
