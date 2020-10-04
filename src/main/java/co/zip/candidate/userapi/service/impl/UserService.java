@@ -1,12 +1,17 @@
 package co.zip.candidate.userapi.service.impl;
 
+import co.zip.candidate.userapi.exception.NonUniqueException;
 import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.repository.UserRepository;
 import co.zip.candidate.userapi.service.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,26 +25,33 @@ public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Cacheable("user")
     @Override
     public List<UserModel> listUsers() {
         return userRepository.findAll();
     }
 
+    @CacheEvict(cacheNames = "user", allEntries = true)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public UserModel createUser(UserModel user) {
+        UserModel existingUser = getUserByEmail(user.getEmail());
+        if (existingUser != null) { throw new NonUniqueException(); }
         return userRepository.save(user);
     }
 
+    @Cacheable("user")
     @Override
-    public Optional<UserModel> getUser(String userId) {
+    public UserModel getUser(String userId) {
         UUID id = UUID.fromString(userId);
         UserModel user = userRepository.findUserModelById(id);
-        return Optional.of(user);
+        return user;
     }
 
+    @Cacheable("user")
     @Override
-    public Optional<UserModel> getUserByEmail(String email) {
+    public UserModel getUserByEmail(String email) {
         UserModel user = userRepository.findFirstByEmail(email);
-        return Optional.of(user);
+        return user;
     }
 }

@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface IUserService {
     List<UserModel> listUsers();
     UserModel createUser(UserModel user);
-    Optional<UserModel> getUser(String userId);
-    Optional<UserModel> getUserByEmail(String email);
+    UserModel getUser(String userId);
+    UserModel getUserByEmail(String email);
 }

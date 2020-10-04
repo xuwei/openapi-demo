@@ -9,8 +9,12 @@ import co.zip.candidate.userapi.repository.AccountRepository;
 import co.zip.candidate.userapi.service.IAccountService;
 import co.zip.candidate.userapi.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -28,38 +32,33 @@ public class AccountService implements IAccountService {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Cacheable("account")
     @Override
     public List<AccountModel> listAccounts() {
         return accountRepository.findAll();
     }
 
+    @Cacheable("account")
     @Override
-    public Optional<AccountModel> getAccount(String accountId) {
+    public AccountModel getAccount(String accountId) {
         UUID id = UUID.fromString(accountId);
         AccountModel account = accountRepository.findAccountModelById(id);
-        return Optional.of(account);
+        return account;
     }
 
-    @Transactional
+    @CacheEvict(cacheNames = "account", allEntries = true)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public AccountModel createAccount(AccountModel account) throws RuntimeException {
-        Optional<UserModel> user = userService.getUserByEmail(account.getEmail());
-        boolean isEligible = false;
-        if (user.isPresent()) {
-            isEligible = isEligible(user.get().getMonthlySalary() , user.get().getMonthlyExpense());
-        } else {
-            throw new NotFoundException();
-        }
-
-        if (isEligible) {
-            try {
+        try {
+            UserModel user = userService.getUserByEmail(account.getEmail());
+            boolean isEligible = isEligible(user.getMonthlySalary() , user.getMonthlyExpense());
+            if (isEligible) {
                 account.setBalance(INITIAL_ACCOUNT_BALANCE);
                 return accountRepository.save(account);
-            } catch(RuntimeException ex) {
-                throw new GenericException();
-            }
-        } else {
-            throw new NotEligibleException();
+            } else { throw new NotEligibleException(); }
+        } catch(RuntimeException ex) {
+            throw new GenericException();
         }
     }
 

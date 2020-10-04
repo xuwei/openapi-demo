@@ -8,6 +8,7 @@ import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.service.impl.AccountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,13 +41,8 @@ public class AccountController {
     @GetMapping("/{accountId}")
     public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable String accountId) {
         try {
-            Optional<AccountModel> account = accountService.getAccount(accountId);
-            ResponseEntity response;
-            if (account.isPresent()) {
-                response = new ResponseEntity<>(account.get(), HttpStatus.OK);
-            } else {
-                throw new NotFoundException();
-            }
+            AccountModel account = accountService.getAccount(accountId);
+            ResponseEntity response = new ResponseEntity<>(account, HttpStatus.OK);
             return CompletableFuture.completedFuture(response);
         } catch (Exception ex) {
             throw new CompletionException(new NotFoundException());

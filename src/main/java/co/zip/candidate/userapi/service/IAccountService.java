@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface IAccountService {
     List<AccountModel> listAccounts();
-    Optional<AccountModel> getAccount(String accountId);
+    AccountModel getAccount(String accountId);
     AccountModel createAccount(AccountModel accountModel);
 }
