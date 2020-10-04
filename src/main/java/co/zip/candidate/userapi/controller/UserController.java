@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -30,6 +31,15 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Async
+    @Operation(summary = "Query users by pagination", description = "", tags = { "user" })
+    @GetMapping("/query")
+    public CompletableFuture<ResponseEntity<Page<UserModel>>> queryUsers(@RequestParam int pageNo, @RequestParam int pageSize) {
+        Page users = userService.queryUsers(pageNo, pageSize);
+        ResponseEntity response = new ResponseEntity<>(users, HttpStatus.OK);
+        return CompletableFuture.completedFuture(response);
+    }
 
     @Async
     @Operation(summary = "List all users", description = "", tags = { "user" })
