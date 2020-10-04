@@ -1,5 +1,6 @@
 package co.zip.candidate.userapi.model;
 
+import co.zip.candidate.userapi.enums.AccountStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,6 +39,9 @@ public class AccountModel {
     @DecimalMin(value = "0.0", message = "balance must be zero or positive value")
     private BigDecimal balance;
 
+    @Enumerated(EnumType.STRING)
+    private AccountStatus accountStatus;
+
     @JsonIgnore
     @JsonProperty("created")
     @CreatedDate
@@ -48,11 +52,11 @@ public class AccountModel {
                                 String email,
                         @Digits(integer = 10, fraction = 2)
                         @DecimalMin(value = "0.0", message = "balance must be zero or positive value")
-                                BigDecimal balance,
-                                Date created) {
+                                BigDecimal balance) {
         this.email = email;
         this.balance = balance;
-        this.created = created;
+        this.created = new Date();
+        this.accountStatus = AccountStatus.Active;
     }
 
     public AccountModel() { }
@@ -75,5 +79,9 @@ public class AccountModel {
 
     public Date getCreated() {
         return created;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
     }
 }

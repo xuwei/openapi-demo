@@ -49,12 +49,12 @@ public class AccountService implements IAccountService {
     @CacheEvict(cacheNames = "account", allEntries = true)
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public AccountModel createAccount(AccountModel account) throws RuntimeException {
+    public AccountModel createAccount(String email) throws RuntimeException {
         try {
-            UserModel user = userService.getUserByEmail(account.getEmail());
+            UserModel user = userService.getUserByEmail(email);
             boolean isEligible = isEligible(user.getMonthlySalary() , user.getMonthlyExpense());
             if (isEligible) {
-                account.setBalance(INITIAL_ACCOUNT_BALANCE);
+                AccountModel account = new AccountModel(email, INITIAL_ACCOUNT_BALANCE);
                 return accountRepository.save(account);
             } else { throw new NotEligibleException(); }
         } catch(RuntimeException ex) {
