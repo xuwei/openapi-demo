@@ -2,11 +2,11 @@ package co.zip.candidate.userapi.controller;
 
 import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.service.IUserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -28,9 +28,10 @@ public class UserController {
     @Async
     @ResponseStatus(code = HttpStatus.OK)
     @ResponseBody
+    @Cacheable
     @GetMapping("/list")
-    public CompletableFuture<ResponseEntity<List<UserModel>>> listUsers() {
-        List users = userService.listUsers();
+    public CompletableFuture<ResponseEntity<Page<UserModel>>> listUsers(@RequestParam Pageable pageable) {
+        Page users = userService.listUsers(pageable);
         ResponseEntity response = new ResponseEntity<>(users, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
     }
@@ -39,8 +40,8 @@ public class UserController {
     @ResponseStatus(code = HttpStatus.OK)
     @ResponseBody
     @GetMapping("/{userId}")
-    public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable Long userId) {
-        UserModel user = userService.getUser(userId);
+    public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable String userId) {
+        Optional<UserModel> user = userService.getUser(userId);
         ResponseEntity response = new ResponseEntity<>(user, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
     }
@@ -49,7 +50,7 @@ public class UserController {
     @ResponseStatus(code = HttpStatus.CREATED)
     @ResponseBody
     @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ResponseEntity<UserModel>> createUser(@Valid @RequestBody UserModel user) throws Exception {
+    public CompletableFuture<ResponseEntity<UserModel>> createUser(@Valid @RequestBody UserModel user) {
         UserModel savedUser = userService.createUser(user);
         ResponseEntity response = new ResponseEntity<>(savedUser, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
