@@ -1,6 +1,7 @@
 package co.zip.candidate.userapi.controller;
 
 import co.zip.candidate.userapi.exception.NonUniqueException;
+import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.service.impl.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,14 +41,18 @@ public class UserController {
     @Async
     @GetMapping("/{userId}")
     public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable String userId) {
-        Optional<UserModel> user = userService.getUser(userId);
-        ResponseEntity response;
-        if (user.isPresent()) {
-            response = new ResponseEntity<>(user.get(), HttpStatus.OK);
-        } else {
-            throw new NonUniqueException();
+        try {
+            Optional<UserModel> user = userService.getUser(userId);
+            ResponseEntity response;
+            if (user.isPresent()) {
+                response = new ResponseEntity<>(user.get(), HttpStatus.OK);
+            } else {
+                throw new NotFoundException();
+            }
+            return CompletableFuture.completedFuture(response);
+        } catch (Exception ex) {
+            throw new CompletionException(new NotFoundException());
         }
-        return CompletableFuture.completedFuture(response);
     }
 
     @PostMapping(value = "/")
@@ -56,7 +61,7 @@ public class UserController {
             UserModel savedUser = userService.createUser(user);
             ResponseEntity response = new ResponseEntity<>(savedUser, HttpStatus.OK);
             return CompletableFuture.completedFuture(response);
-        } catch (ConstraintViolationException ex) {
+        } catch (Exception ex) {
             throw new CompletionException(ex);
         }
     }

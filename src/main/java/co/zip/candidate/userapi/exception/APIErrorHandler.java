@@ -32,20 +32,27 @@ public class APIErrorHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(NonUniqueException.class)
-    protected ResponseEntity<Object> handleNonUniqueEmail (
+    protected ResponseEntity<Object> handleNotUnique (
             RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "Email already existed.";
+        String bodyOfResponse = "Unique field already existed.";
         return handleExceptionInternal(ex, bodyOfResponse,
                 new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handle(Exception ex,
-                                         HttpServletRequest request, HttpServletResponse response) {
-        if (ex instanceof NullPointerException) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    @ExceptionHandler(NotFoundException.class)
+    protected ResponseEntity<Object> handleNotFound (
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "Data not found.";
+        return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(GenericException.class)
+    protected ResponseEntity<Object> handleServerError (
+            RuntimeException ex, WebRequest request) {
+        String bodyOfResponse = "There is some technical issues. Please try again later";
+        return handleExceptionInternal(ex, bodyOfResponse,
+                new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     @Override
