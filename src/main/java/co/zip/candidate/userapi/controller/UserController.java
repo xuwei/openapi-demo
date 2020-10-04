@@ -1,21 +1,25 @@
 package co.zip.candidate.userapi.controller;
 
+import co.zip.candidate.userapi.exception.NonUniqueException;
 import co.zip.candidate.userapi.model.UserModel;
-import co.zip.candidate.userapi.service.IUserService;
+import co.zip.candidate.userapi.service.impl.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @RestController
 @RequestMapping("/api/user")
@@ -23,36 +27,37 @@ import java.util.concurrent.CompletableFuture;
 public class UserController {
 
     @Autowired
-    private IUserService userService;
+    private UserService userService;
 
     @Async
-    @ResponseStatus(code = HttpStatus.OK)
-    @ResponseBody
-    @Cacheable
     @GetMapping("/list")
-    public CompletableFuture<ResponseEntity<Page<UserModel>>> listUsers(@RequestParam Pageable pageable) {
-        Page users = userService.listUsers(pageable);
+    public CompletableFuture<ResponseEntity<List<UserModel>>> listUsers() {
+        List users = userService.listUsers();
         ResponseEntity response = new ResponseEntity<>(users, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
     }
 
     @Async
-    @ResponseStatus(code = HttpStatus.OK)
-    @ResponseBody
     @GetMapping("/{userId}")
     public CompletableFuture<ResponseEntity<UserModel>> getUser(@PathVariable String userId) {
         Optional<UserModel> user = userService.getUser(userId);
-        ResponseEntity response = new ResponseEntity<>(user, HttpStatus.OK);
+        ResponseEntity response;
+        if (user.isPresent()) {
+            response = new ResponseEntity<>(user.get(), HttpStatus.OK);
+        } else {
+            throw new NonUniqueException();
+        }
         return CompletableFuture.completedFuture(response);
     }
 
-    @Async
-    @ResponseStatus(code = HttpStatus.CREATED)
-    @ResponseBody
-    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ResponseEntity<UserModel>> createUser(@Valid @RequestBody UserModel user) {
-        UserModel savedUser = userService.createUser(user);
-        ResponseEntity response = new ResponseEntity<>(savedUser, HttpStatus.OK);
-        return CompletableFuture.completedFuture(response);
+    @PostMapping(value = "/")
+    public CompletableFuture<ResponseEntity<UserModel>> createUser(@Valid @RequestBody UserModel user) throws ConstraintViolationException {
+        try {
+            UserModel savedUser = userService.createUser(user);
+            ResponseEntity response = new ResponseEntity<>(savedUser, HttpStatus.OK);
+            return CompletableFuture.completedFuture(response);
+        } catch (ConstraintViolationException ex) {
+            throw new CompletionException(ex);
+        }
     }
 }

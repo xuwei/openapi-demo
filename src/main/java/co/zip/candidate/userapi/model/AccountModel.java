@@ -1,5 +1,6 @@
 package co.zip.candidate.userapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Component;
@@ -19,13 +20,28 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class AccountModel {
 
+    @JsonIgnore
     @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @JsonProperty("userId")
+    @JsonProperty("email")
     @NotNull
     @NotEmpty
-    private UUID userId;
+    private String email;
+
+    public AccountModel(@NotNull @NotEmpty String email) {
+        this.email = email;
+    }
+
+    public AccountModel() { }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
 }

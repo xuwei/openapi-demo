@@ -6,11 +6,8 @@ import co.zip.candidate.userapi.service.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,11 +21,10 @@ public class UserService implements IUserService {
     private UserRepository userRepository;
 
     @Override
-    public Page<UserModel> listUsers(Pageable pageable) {
-        return userRepository.findAll(pageable);
+    public List<UserModel> listUsers() {
+        return userRepository.findAll();
     }
 
-    @Transactional
     @Override
     public UserModel createUser(UserModel user) {
         return userRepository.save(user);
@@ -37,7 +33,7 @@ public class UserService implements IUserService {
     @Override
     public Optional<UserModel> getUser(String userId) {
         UUID id = UUID.fromString(userId);
-        UserModel user = userRepository.findFirstById(id);
+        UserModel user = userRepository.findUserModelById(id);
         return Optional.of(user);
     }
 

@@ -3,12 +3,14 @@ package co.zip.candidate.userapi.service.impl;
 import co.zip.candidate.userapi.exception.NotEligibleException;
 import co.zip.candidate.userapi.model.AccountModel;
 import co.zip.candidate.userapi.model.UserModel;
+import co.zip.candidate.userapi.repository.AccountRepository;
 import co.zip.candidate.userapi.service.IAccountService;
 import co.zip.candidate.userapi.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,7 +22,12 @@ public class AccountService implements IAccountService {
     private IUserService userService;
 
     @Autowired
-    private IAccountService accountService;
+    private AccountRepository accountRepository;
+
+    @Override
+    public List<AccountModel> listAccounts() {
+        return accountRepository.findAll();
+    }
 
     @Transactional
     @Override
@@ -33,7 +40,8 @@ public class AccountService implements IAccountService {
 
         if (isEligible) {
             UserModel userModel = user.get();
-            return accountService.createAccount(userModel.getEmail());
+            AccountModel newAccount = new AccountModel(userModel.getEmail());
+            return accountRepository.save(newAccount);
         } else {
             throw new NotEligibleException();
         }

@@ -1,9 +1,7 @@
 package co.zip.candidate.userapi.controller;
 
 import co.zip.candidate.userapi.model.AccountModel;
-import co.zip.candidate.userapi.model.UserModel;
-import co.zip.candidate.userapi.service.IAccountService;
-import co.zip.candidate.userapi.service.IUserService;
+import co.zip.candidate.userapi.service.impl.AccountService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -21,15 +20,23 @@ import java.util.concurrent.CompletableFuture;
 public class AccountController {
 
     @Autowired
-    private IAccountService accountService;
+    private AccountService accountService;
 
     @Async
-    @ResponseStatus(code = HttpStatus.CREATED)
-    @ResponseBody
-    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public CompletableFuture<ResponseEntity<AccountModel>> createAccount(@Valid @RequestBody String email) {
-            AccountModel newAccount = accountService.createAccount(email);
+    @GetMapping("/list")
+    public CompletableFuture<ResponseEntity<List<AccountModel>>> listAccounts() {
+        List<AccountModel> accounts = accountService.listAccounts();
+        ResponseEntity response = new ResponseEntity<>(accounts, HttpStatus.OK);
+        return CompletableFuture.completedFuture(response);
+    }
+
+    @Async
+    @PostMapping(value = "/")
+    public CompletableFuture<ResponseEntity<AccountModel>> createAccount(@Valid @RequestBody AccountModel account) {
+            AccountModel newAccount = accountService.createAccount(account.getEmail());
             ResponseEntity response = new ResponseEntity<>(newAccount, HttpStatus.OK);
             return CompletableFuture.completedFuture(response);
     }
+
+
 }

@@ -3,6 +3,9 @@ package co.zip.candidate.userapi.service;
 import co.zip.candidate.userapi.model.AccountModel;
 import co.zip.candidate.userapi.model.UserModel;
 
+import java.util.List;
+
 public interface IAccountService {
-    public AccountModel createAccount(String email);
+    List<AccountModel> listAccounts();
+    AccountModel createAccount(String email);
 }
