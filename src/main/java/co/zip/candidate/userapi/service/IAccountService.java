@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface IAccountService {
     List<AccountModel> listAccounts();
-    AccountModel createAccount(String email);
+    AccountModel createAccount(AccountModel accountModel);
 }

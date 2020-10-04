@@ -33,7 +33,7 @@ public class AccountController {
     @Async
     @PostMapping(value = "/")
     public CompletableFuture<ResponseEntity<AccountModel>> createAccount(@Valid @RequestBody AccountModel account) {
-            AccountModel newAccount = accountService.createAccount(account.getEmail());
+            AccountModel newAccount = accountService.createAccount(account);
             ResponseEntity response = new ResponseEntity<>(newAccount, HttpStatus.OK);
             return CompletableFuture.completedFuture(response);
     }

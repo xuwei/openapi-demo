@@ -17,6 +17,7 @@ import java.util.Optional;
 public class AccountService implements IAccountService {
 
     final BigDecimal MIN_CASH_FLOW = BigDecimal.valueOf(1000);
+    final BigDecimal INITIAL_ACCOUNT_BALANCE = BigDecimal.valueOf(1000);
 
     @Autowired
     private IUserService userService;
@@ -31,17 +32,20 @@ public class AccountService implements IAccountService {
 
     @Transactional
     @Override
-    public AccountModel createAccount(String email) throws NotEligibleException {
-        Optional<UserModel> user = userService.getUserByEmail(email);
+    public AccountModel createAccount(AccountModel account) throws RuntimeException {
+        Optional<UserModel> user = userService.getUserByEmail(account.getEmail());
         boolean isEligible = false;
         if (user.isPresent()) {
             isEligible = isEligible(user.get().getMonthlySalary() , user.get().getMonthlyExpense());
         }
 
         if (isEligible) {
-            UserModel userModel = user.get();
-            AccountModel newAccount = new AccountModel(userModel.getEmail());
-            return accountRepository.save(newAccount);
+            try {
+                account.setBalance(INITIAL_ACCOUNT_BALANCE);
+                return accountRepository.save(account);
+            } catch(RuntimeException ex) {
+                throw ex;
+            }
         } else {
             throw new NotEligibleException();
         }

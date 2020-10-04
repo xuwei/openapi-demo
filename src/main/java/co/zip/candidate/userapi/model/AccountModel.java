@@ -2,19 +2,16 @@ package co.zip.candidate.userapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.validation.constraints.*;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
-@XmlRootElement(name = "AccountModel")
-@XmlAccessorType(XmlAccessType.FIELD)
 @Component
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -29,13 +26,40 @@ public class AccountModel {
     @JsonProperty("email")
     @NotNull
     @NotEmpty
+    @Email(message = "Please provide a valid email format")
+    @Column(unique = true)
+    @Size(min = 3, max = 256, message = "Please provide an email within 256 characters")
     private String email;
 
-    public AccountModel(@NotNull @NotEmpty String email) {
+    @JsonIgnore
+    @JsonProperty("balance")
+    @Digits(integer=10, fraction=2)
+    @Column(precision=2)
+    @DecimalMin(value = "0.0", message = "balance must be zero or positive value")
+    private BigDecimal balance;
+
+    @JsonIgnore
+    @JsonProperty("created")
+    @CreatedDate
+    private Date created;
+
+    public AccountModel(@NotNull @NotEmpty @Email(message = "Please provide a valid email format")
+                        @Size(min = 3, max = 256, message = "Please provide an email within 256 characters")
+                                String email,
+                        @Digits(integer = 10, fraction = 2)
+                        @DecimalMin(value = "0.0", message = "balance must be zero or positive value")
+                                BigDecimal balance,
+                                Date created) {
         this.email = email;
+        this.balance = balance;
+        this.created = created;
     }
 
     public AccountModel() { }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
 
     public UUID getId() {
         return id;
@@ -43,5 +67,13 @@ public class AccountModel {
 
     public String getEmail() {
         return email;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public Date getCreated() {
+        return created;
     }
 }
