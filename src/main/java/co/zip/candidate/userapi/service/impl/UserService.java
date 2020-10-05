@@ -1,6 +1,7 @@
 package co.zip.candidate.userapi.service.impl;
 
 import co.zip.candidate.userapi.exception.NonUniqueException;
+import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.UserModel;
 import co.zip.candidate.userapi.repository.UserRepository;
 import co.zip.candidate.userapi.service.IUserService;
@@ -55,8 +56,12 @@ public class UserService implements IUserService {
     @Cacheable("user")
     @Override
     public UserModel getUserByEmail(String email) {
-        UserModel user = userRepository.findFirstByEmail(email);
-        return user;
+        try {
+            UserModel user = userRepository.findFirstByEmail(email);
+            return user;
+        } catch (Exception e) {
+            throw new NotFoundException();
+        }
     }
 
     @Override
