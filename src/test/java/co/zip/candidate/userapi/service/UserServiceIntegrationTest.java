@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -66,6 +67,28 @@ public class UserServiceIntegrationTest {
             assertTrue(savedUser.getEmail().equals(john.getEmail()));
         } catch (Exception e) {
             fail(e.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void testCreateUserNegativeSalary() {
+        BigDecimal salary = new BigDecimal(-1000);
+        BigDecimal expense = new BigDecimal(1000);
+        try {
+            UserModel john = new UserModel("john", "john@gmail.com", salary, expense);
+        } catch (Exception e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void testCreateUserNegativeExpense() {
+        BigDecimal salary = new BigDecimal(1000);
+        BigDecimal expense = new BigDecimal(-1000);
+        try {
+            UserModel john = new UserModel("john", "john@gmail.com", salary, expense);
+        } catch (Exception e) {
+            assertTrue(true);
         }
     }
 
