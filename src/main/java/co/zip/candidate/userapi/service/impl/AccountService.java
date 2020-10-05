@@ -1,6 +1,7 @@
 package co.zip.candidate.userapi.service.impl;
 
 import co.zip.candidate.userapi.exception.GenericException;
+import co.zip.candidate.userapi.exception.NonUniqueException;
 import co.zip.candidate.userapi.exception.NotEligibleException;
 import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.AccountModel;
@@ -51,19 +52,29 @@ public class AccountService implements IAccountService {
     @Override
     public AccountModel createAccount(String email) throws RuntimeException {
         try {
+            // check if this email is already existing
+            AccountModel existingAccount = accountRepository.findAccountModelByEmail(email);
+            if (existingAccount != null) {
+                throw new NonUniqueException();
+            }
+
             UserModel user = userService.getUserByEmail(email);
             boolean isEligible = isEligible(user.getMonthlySalary() , user.getMonthlyExpense());
             if (isEligible) {
                 AccountModel account = new AccountModel(email, INITIAL_ACCOUNT_BALANCE);
                 return accountRepository.save(account);
-            } else { throw new NotEligibleException(); }
+            } else {
+                throw new NotEligibleException();
+            }
         } catch(RuntimeException ex) {
-            throw new GenericException();
+            if(ex instanceof NotEligibleException || ex instanceof NonUniqueException) { throw ex; } else {
+                throw new GenericException();
+            }
         }
     }
 
     private boolean isEligible(BigDecimal salary, BigDecimal expense) {
         BigDecimal cashFlow = salary.subtract(expense);
-        return cashFlow.compareTo(MIN_CASH_FLOW) > 0 ? true : false;
+        return cashFlow.compareTo(MIN_CASH_FLOW) >= 0 ? true : false;
     }
 }
