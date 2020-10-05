@@ -33,3 +33,4 @@
 * Add administrative calls to clear caching.
 * Use **@CachePut**, cache merge mechanism when we have new db entry. So we avoid clearing the whole cache.
 * Add **JavaDoc** to codebase to improve documentation.
+* Add a **pre-push** git hook to execute **./gradlew clean test** and check if all tests pass before allowing push to remote.
