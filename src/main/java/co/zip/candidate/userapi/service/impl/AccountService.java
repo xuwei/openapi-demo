@@ -73,7 +73,7 @@ public class AccountService implements IAccountService {
         }
     }
 
-    private boolean isEligible(BigDecimal salary, BigDecimal expense) {
+    public boolean isEligible(BigDecimal salary, BigDecimal expense) {
         BigDecimal cashFlow = salary.subtract(expense);
         return cashFlow.compareTo(MIN_CASH_FLOW) >= 0 ? true : false;
     }

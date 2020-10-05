@@ -3,17 +3,13 @@ package co.zip.candidate.userapi.service;
 import co.zip.candidate.userapi.exception.NonUniqueException;
 import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.UserModel;
-import co.zip.candidate.userapi.service.impl.AccountService;
 import co.zip.candidate.userapi.service.impl.UserService;
 import co.zip.candidate.userapi.service.util.TestDataUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -23,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class UserServiceTest {
+public class UserServiceIntegrationTest {
 
     @Autowired
     UserService userService;
