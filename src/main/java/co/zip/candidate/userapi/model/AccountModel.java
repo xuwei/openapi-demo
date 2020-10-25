@@ -24,13 +24,10 @@ public class AccountModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @JsonProperty("email")
+    @JsonProperty("userId")
     @NotNull
     @NotEmpty
-    @Email(message = "Please provide a valid email format")
-    @Column(unique = true)
-    @Size(min = 3, max = 256, message = "Please provide an email within 256 characters")
-    private String email;
+    private String userId;
 
     @JsonIgnore
     @JsonProperty("balance")
@@ -47,13 +44,11 @@ public class AccountModel {
     @CreatedDate
     private Date created;
 
-    public AccountModel(@NotNull @NotEmpty @Email(message = "Please provide a valid email format")
-                        @Size(min = 3, max = 256, message = "Please provide an email within 256 characters")
-                                String email,
+    public AccountModel(@NotNull @NotEmpty String userId,
                         @Digits(integer = 10, fraction = 2)
                         @DecimalMin(value = "0.0", message = "balance must be zero or positive value")
                                 BigDecimal balance) {
-        this.email = email;
+        this.userId = userId;
         this.balance = balance;
         this.created = new Date();
         this.accountStatus = AccountStatus.Active;
@@ -69,9 +64,7 @@ public class AccountModel {
         return id;
     }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getUserId() { return userId; }
 
     public BigDecimal getBalance() {
         return balance;

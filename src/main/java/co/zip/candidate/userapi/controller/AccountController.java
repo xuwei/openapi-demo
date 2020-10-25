@@ -1,8 +1,6 @@
 package co.zip.candidate.userapi.controller;
 
 import co.zip.candidate.userapi.controller.request.CreateAccountRequest;
-import co.zip.candidate.userapi.exception.GenericException;
-import co.zip.candidate.userapi.exception.NonUniqueException;
 import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.AccountModel;
 import co.zip.candidate.userapi.model.UserModel;
@@ -10,16 +8,14 @@ import co.zip.candidate.userapi.service.impl.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -45,10 +41,10 @@ public class AccountController {
     }
 
     @Async
-    @Operation(summary = "List all accounts", description = "", tags = { "account" })
-    @GetMapping("/list")
-    public CompletableFuture<ResponseEntity<List<AccountModel>>> listAccounts() {
-        List<AccountModel> accounts = accountService.listAccounts();
+    @Operation(summary = "List all accounts under one user", description = "", tags = { "account" })
+    @GetMapping("/{userId}/list")
+    public CompletableFuture<ResponseEntity<List<AccountModel>>> listAccounts(@PathVariable String userId) {
+        List<AccountModel> accounts = accountService.listAccounts(UUID.fromString(userId));
         ResponseEntity response = new ResponseEntity<>(accounts, HttpStatus.OK);
         return CompletableFuture.completedFuture(response);
     }
@@ -58,13 +54,12 @@ public class AccountController {
     @PostMapping(value = "/")
     public CompletableFuture<ResponseEntity<AccountModel>> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try {
-            AccountModel newAccount = accountService.createAccount(request.getEmail());
+            UUID userId = UUID.fromString(request.getUserId());
+            AccountModel newAccount = accountService.createAccount(userId);
             ResponseEntity response = new ResponseEntity<>(newAccount, HttpStatus.OK);
             return CompletableFuture.completedFuture(response);
         } catch (Exception ex) {
             throw new CompletionException(ex);
         }
     }
-
-
 }

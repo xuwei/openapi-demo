@@ -57,17 +57,19 @@ public class AccountServiceIntegrationTest {
 
     @Test
     public void testListAccount() {
-
         try {
-            AccountModel johnAccount = accountService.createAccount(john.getEmail());
-            AccountModel peterAccount = accountService.createAccount(peter.getEmail());
-            AccountModel jamesAccount = accountService.createAccount(james.getEmail());
-            assertNotNull(johnAccount);
-            assertNotNull(peterAccount);
-            assertNotNull(jamesAccount);
-            List<AccountModel> accountList = accountService.listAccounts();
+            AccountModel account1 = accountService.createAccount(john.getId());
+            AccountModel account2 = accountService.createAccount(john.getId());
+            AccountModel account3 = accountService.createAccount(john.getId());
+            assertNotNull(account1);
+            assertNotNull(account2);
+            assertNotNull(account3);
+            List<AccountModel> accountList = accountService.listAccounts(john.getId());
             assertNotNull(accountList);
             assertTrue(accountList.size() == 3);
+            assertTrue(account1.getId().equals(accountList.get(0).getId()));
+            assertTrue(account2.getId().equals(accountList.get(1).getId()));
+            assertTrue(account3.getId().equals(accountList.get(2).getId()));
         } catch (Exception e) {
             fail(e.getLocalizedMessage());
         }
@@ -76,7 +78,7 @@ public class AccountServiceIntegrationTest {
     @Test
     public void testListAccountEmpty() {
         try {
-            List<AccountModel> accountList = accountService.listAccounts();
+            List<AccountModel> accountList = accountService.listAccounts(john.getId());
             assertNotNull(accountList);
             assertTrue(accountList.size() == 0);
         } catch (Exception e) {
@@ -87,12 +89,12 @@ public class AccountServiceIntegrationTest {
     @Test
     public void testCreateAccount() {
         try {
-            AccountModel johnAccount = accountService.createAccount(john.getEmail());
+            AccountModel johnAccount = accountService.createAccount(john.getId());
             assertNotNull(johnAccount);
             assertNotNull(johnAccount.getId());
             assertNotNull(johnAccount.getCreated());
-            assertNotNull(johnAccount.getEmail());
-            assertTrue(johnAccount.getEmail().equals(john.getEmail()));
+            assertNotNull(johnAccount.getUserId());
+            assertTrue(johnAccount.getUserId().equals(john.getId()));
             assertTrue(johnAccount.getAccountStatus() == AccountStatus.Active);
         } catch (Exception e) {
             fail(e.getLocalizedMessage());
@@ -104,7 +106,7 @@ public class AccountServiceIntegrationTest {
 
         UserModel fakeJohn = new UserModel(john.getName(), "dummy@gmail.com", john.getMonthlySalary(), john.getMonthlyExpense());
         try {
-            AccountModel johnAccount = accountService.createAccount(fakeJohn.getEmail());
+            AccountModel johnAccount = accountService.createAccount(fakeJohn.getId());
         } catch (Exception e) {
             if (e instanceof GenericException) {
                 assertTrue(true);
@@ -119,7 +121,7 @@ public class AccountServiceIntegrationTest {
         UserModel ineligible_dave = dataUtil.getTestUser(TestDataUtil.INELIGIBLE_DAVE);
         try {
             UserModel dave = userService.createUser(ineligible_dave);
-            accountService.createAccount(dave.getEmail());
+            accountService.createAccount(dave.getId());
         } catch (Exception e) {
             if (e instanceof NotEligibleException) {
                 assertTrue(true);
@@ -132,8 +134,8 @@ public class AccountServiceIntegrationTest {
     @Test
     public void testCreateAccountDuplicatedEmail() {
         try {
-            accountService.createAccount(john.getEmail());
-            accountService.createAccount(john.getEmail());
+            accountService.createAccount(john.getId());
+            accountService.createAccount(john.getId());
         } catch (Exception e) {
             if (e instanceof NonUniqueException) {
                 assertTrue(true);
@@ -146,12 +148,12 @@ public class AccountServiceIntegrationTest {
     @Test
     public void testGetAccount() {
         try {
-            AccountModel johnAccount = accountService.createAccount(john.getEmail());
+            AccountModel johnAccount = accountService.createAccount(john.getId());
             assertNotNull(johnAccount.getId());
             UUID accountId = johnAccount.getId();
             AccountModel fetchedAccount = accountService.getAccount(accountId.toString());
             johnAccount.getId().equals(fetchedAccount.getId());
-            johnAccount.getEmail().equals(fetchedAccount.getEmail());
+            johnAccount.getUserId().equals(fetchedAccount.getUserId());
             johnAccount.getCreated().equals(fetchedAccount.getCreated());
         } catch (Exception e) {
             fail();
