@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 public class CreateAccountRequest {
 
-    @JsonProperty("email")
+    @JsonProperty("userId")
     @NotNull
     @NotEmpty
     @Column(unique = true)

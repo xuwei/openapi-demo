@@ -1,5 +1,6 @@
 package co.zip.candidate.userapi.controller;
 
+import co.zip.candidate.userapi.MockAuthentication;
 import co.zip.candidate.userapi.controller.request.CreateAccountRequest;
 import co.zip.candidate.userapi.exception.NotFoundException;
 import co.zip.candidate.userapi.model.AccountModel;
@@ -54,6 +55,10 @@ public class AccountController {
     @PostMapping(value = "/")
     public CompletableFuture<ResponseEntity<AccountModel>> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try {
+
+            // UserId should be retrieved by loggedIn session using security context
+            // e.g.
+//            UUID userId = UUID.fromString(MockAuthentication.currentUserId());
             UUID userId = UUID.fromString(request.getUserId());
             AccountModel newAccount = accountService.createAccount(userId);
             ResponseEntity response = new ResponseEntity<>(newAccount, HttpStatus.OK);
