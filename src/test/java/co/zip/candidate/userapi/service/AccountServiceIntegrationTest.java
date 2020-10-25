@@ -94,7 +94,7 @@ public class AccountServiceIntegrationTest {
             assertNotNull(johnAccount.getId());
             assertNotNull(johnAccount.getCreated());
             assertNotNull(johnAccount.getUserId());
-            assertTrue(johnAccount.getUserId().equals(john.getId()));
+            assertTrue(johnAccount.getUserId().equals(john.getId().toString()));
             assertTrue(johnAccount.getAccountStatus() == AccountStatus.Active);
         } catch (Exception e) {
             fail(e.getLocalizedMessage());
