@@ -39,7 +39,11 @@ dependencies {
 
 // work in progress
 task swiftSDK(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+	outputs.upToDateWhen { false }
+	outputs.cacheIf { false }
 	generatorName = "swift5"
+	inputSpec = "$rootDir/userapi.yaml".toString()
+	outputDir = "$rootDir/mobileSDK/swift".toString()
 }
 
 task kotlinSDK(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
@@ -47,13 +51,7 @@ task kotlinSDK(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 	outputs.cacheIf { false }
 	generatorName = "kotlin"
 	inputSpec = "$rootDir/userapi.yaml".toString()
-	outputDir = "$rootDir/clients".toString()
-	apiPackage = "co.zip.candidate"
-	packageName = "co.zip.candidate.client"
-	modelPackage = "co.zip.candidate.model"
-	modelFilesConstrainedTo = [
-			"Error"
-	]
+	outputDir = "$rootDir/mobileSDK/kotlin".toString()
 	configOptions = [
 			dateLibrary: "java8"
 	]
@@ -61,7 +59,7 @@ task kotlinSDK(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 compileJava {
 	dependsOn tasks.kotlinSDK
-//	dependsOn tasks.swiftSDK
+	dependsOn tasks.swiftSDK
 }
 
 test {

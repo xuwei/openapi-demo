@@ -33,3 +33,6 @@ build
 
 # don't ignore wrapper folder
 !gradle/wrapper/*
+
+# ignore generated mobile SDK
+mobileSDK/*
