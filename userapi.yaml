@@ -1,0 +1,294 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8080'
+    description: Generated server url
+tags:
+  - name: UserController
+    description: User API
+  - name: AccountController
+    description: Account API
+paths:
+  '/api/account/{accountId}':
+    get:
+      tags:
+        - AccountController
+      summary: Get account by account's UUID
+      operationId: getUser
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserModel'
+  '/api/account/{userId}/list':
+    get:
+      tags:
+        - AccountController
+      summary: List all accounts under one user
+      operationId: listAccounts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountModel'
+  /api/account/:
+    post:
+      tags:
+        - AccountController
+      summary: Add a new account
+      operationId: createAccount
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AccountModel'
+  '/api/user/{userId}':
+    get:
+      tags:
+        - UserController
+      summary: Get user by user's UUID
+      operationId: getUser_1
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserModel'
+  /api/user/query:
+    get:
+      tags:
+        - UserController
+      summary: Query users by pagination
+      operationId: queryUsers
+      parameters:
+        - name: pageNo
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageUserModel'
+  /api/user/list:
+    get:
+      tags:
+        - UserController
+      summary: List all users
+      operationId: listUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserModel'
+  /api/user/:
+    post:
+      tags:
+        - UserController
+      summary: Add a new user
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserModel'
+components:
+  schemas:
+    UserModel:
+      required:
+        - email
+        - monthlyExpense
+        - monthlySalary
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created:
+          type: string
+          format: date-time
+        name:
+          maxLength: 100
+          minLength: 3
+          type: string
+        email:
+          maxLength: 256
+          minLength: 3
+          type: string
+        monthlySalary:
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+        monthlyExpense:
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+    AccountModel:
+      required:
+        - userId
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        balance:
+          type: number
+        accountStatus:
+          type: string
+          enum:
+            - Active
+            - Pending
+            - Deactivated
+        created:
+          type: string
+          format: date-time
+        userId:
+          type: string
+    CreateAccountRequest:
+      required:
+        - userId
+      type: object
+      properties:
+        userId:
+          type: string
+    PageUserModel:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserModel'
+        number:
+          type: integer
+          format: int32
+        numberOfElements:
+          type: integer
+          format: int32
+        first:
+          type: boolean
+        pageable:
+          $ref: '#/components/schemas/Pageable'
+        last:
+          type: boolean
+        sort:
+          $ref: '#/components/schemas/Sort'
+        empty:
+          type: boolean
+    Pageable:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+        sort:
+          $ref: '#/components/schemas/Sort'
+    Sort:
+      type: object
+      properties:
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+        empty:
+          type: boolean
+    CreateUserRequest:
+      required:
+        - email
+        - monthlyExpense
+        - monthlySalary
+        - name
+      type: object
+      properties:
+        name:
+          maxLength: 100
+          minLength: 3
+          type: string
+        email:
+          maxLength: 256
+          minLength: 3
+          type: string
+        monthlySalary:
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
+        monthlyExpense:
+          minimum: 0
+          exclusiveMinimum: false
+          type: number
