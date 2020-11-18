@@ -1,0 +1,1 @@
+wget -O userapi.yaml http://localhost:8080/api-docs
